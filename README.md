@@ -142,6 +142,6 @@ HTML, CSS e JavaScript puro.
 
 ## Links
 
-- Vídeo (YouTube, não listado): <COLOCAR LINK DO VIDEO AQUI>
+- Vídeo (YouTube, não listado): https://youtu.be/LTTZF53wRCU
 - Repositório GitHub: https://github.com/FilipeGMFanizzi/Sprint-02-Python.git
 - Quadro Kanban (Trello): https://trello.com/b/SltlH7et/chargegrid-intelligence-sprint-2
