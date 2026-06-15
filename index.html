@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChargeGrid Intelligence – Dashboard</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  :root {
+    --bg: #0a0d12;
+    --surface: #111620;
+    --surface2: #161c28;
+    --border: #1e2840;
+    --accent: #00e5a0;
+    --accent2: #0097ff;
+    --warn: #f5a623;
+    --danger: #ff4757;
+    --text: #e8ecf4;
+    --muted: #6b7a99;
+    --card-r: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo-icon {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .logo-text { font-size: 16px; font-weight: 700; letter-spacing: -0.3px; }
+  .logo-sub { font-size: 11px; color: var(--muted); font-weight: 400; }
+  .header-right {
+    display: flex; align-items: center; gap: 20px;
+  }
+  .sim-time {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    background: rgba(0,229,160,0.08);
+    border: 1px solid rgba(0,229,160,0.2);
+    padding: 5px 12px;
+    border-radius: 6px;
+  }
+  .sim-badge {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: var(--warn);
+    background: rgba(245,166,35,0.1);
+    border: 1px solid rgba(245,166,35,0.25);
+    padding: 4px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+  }
+
+  /* LAYOUT */
+  main { padding: 24px 28px; max-width: 1400px; margin: 0 auto; }
+
+  /* KPI ROW */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .kpi {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--card-r);
+    padding: 18px 20px;
+  }
+  .kpi-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
+  .kpi-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 26px;
+    font-weight: 600;
+    line-height: 1;
+  }
+  .kpi-unit { font-size: 13px; color: var(--muted); font-family: 'Inter', sans-serif; margin-left: 4px; }
+  .kpi-sub { font-size: 11px; color: var(--muted); margin-top: 6px; }
+  .kpi.accent .kpi-value { color: var(--accent); }
+  .kpi.blue .kpi-value { color: var(--accent2); }
+  .kpi.warn .kpi-value { color: var(--warn); }
+
+  /* CAPACITY BAR */
+  .capacity-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--card-r);
+    padding: 20px 24px;
+    margin-bottom: 24px;
+  }
+  .section-title {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+  .cap-bar-wrap { position: relative; }
+  .cap-bar-bg {
+    background: var(--border);
+    border-radius: 6px;
+    height: 14px;
+    overflow: hidden;
+  }
+  .cap-bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    transition: width 0.8s ease, background 0.5s;
+  }
+  .cap-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .cap-limit-line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    font-size: 11px;
+    color: var(--warn);
+  }
+
+  /* GRID */
+  .content-grid {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 20px;
+  }
+
+  /* CHARGERS */
+  .chargers-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--card-r);
+    padding: 20px 24px;
+  }
+  .chargers-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 16px;
+  }
+  .charger-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    transition: border-color 0.3s;
+    position: relative;
+  }
+  .charger-card.active { border-color: rgba(0,229,160,0.4); }
+  .charger-card.idle { border-color: var(--border); opacity: 0.7; }
+  .charger-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+  }
+  .charger-id {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .charger-status {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 20px;
+  }
+  .status-active { background: rgba(0,229,160,0.15); color: var(--accent); }
+  .status-idle { background: rgba(107,122,153,0.15); color: var(--muted); }
+  .ocpp-badge {
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--accent2);
+    border: 1px solid rgba(0,151,255,0.3);
+    padding: 2px 6px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-bottom: 10px;
+  }
+  .charger-power {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .charger-power.idle-power { color: var(--muted); font-size: 16px; }
+  .charger-kwh {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .charger-mini-bar {
+    margin-top: 10px;
+    background: var(--border);
+    border-radius: 4px;
+    height: 4px;
+    overflow: hidden;
+  }
+  .charger-mini-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 4px;
+    transition: width 0.8s ease;
+  }
+  .charger-tariff {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 8px;
+  }
+  .tariff-val { font-weight: 600; }
+  .tariff-peak { color: var(--danger); }
+  .tariff-solar { color: var(--accent); }
+  .tariff-normal { color: var(--warn); }
+
+  /* SIDEBAR */
+  .sidebar { display: flex; flex-direction: column; gap: 16px; }
+
+  /* AI PANEL */
+  .ai-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--card-r);
+    padding: 20px;
+    flex: 1;
+  }
+  .ai-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .ai-dot {
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.8); }
+  }
+  .ai-title { font-size: 12px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: var(--muted); }
+  .ai-messages { display: flex; flex-direction: column; gap: 10px; }
+  .ai-msg {
+    background: var(--surface2);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+    padding: 10px 12px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--text);
+    animation: fadein 0.4s ease;
+  }
+  .ai-msg.warn { border-color: var(--warn); }
+  .ai-msg.danger { border-color: var(--danger); }
+  @keyframes fadein { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+  .ai-timestamp { font-size: 10px; color: var(--muted); margin-top: 4px; font-family: 'JetBrains Mono', monospace; }
+
+  /* TARIFF PANEL */
+  .tariff-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--card-r);
+    padding: 20px;
+  }
+  .tariff-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+  }
+  .tariff-row:last-child { border-bottom: none; }
+  .tariff-period { color: var(--muted); }
+  .tariff-price { font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+  .tariff-active-badge {
+    font-size: 9px;
+    background: rgba(0,229,160,0.15);
+    color: var(--accent);
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-weight: 600;
+  }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 24px;
+    font-size: 11px;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    margin-top: 32px;
+  }
+
+  @media (max-width: 900px) {
+    .content-grid { grid-template-columns: 1fr; }
+    .chargers-grid { grid-template-columns: repeat(2, 1fr); }
+    .kpi-row { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">⚡</div>
+    <div>
+      <div class="logo-text">ChargeGrid Intelligence</div>
+      <div class="logo-sub">GoodWe Challenge – Sprint 2 · FIAP 2026.1</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="sim-badge">Simulação</div>
+    <div class="sim-time" id="simTime">00:00</div>
+  </div>
+</header>
+
+<main>
+  <!-- KPI ROW -->
+  <div class="kpi-row">
+    <div class="kpi accent">
+      <div class="kpi-label">Carga total ativa</div>
+      <div class="kpi-value" id="kpiLoad">0<span class="kpi-unit">kW</span></div>
+      <div class="kpi-sub" id="kpiLoadSub">de 120 kW disponíveis</div>
+    </div>
+    <div class="kpi blue">
+      <div class="kpi-label">Veículos conectados</div>
+      <div class="kpi-value" id="kpiActive">0<span class="kpi-unit">/ 6</span></div>
+      <div class="kpi-sub">carregadores ativos</div>
+    </div>
+    <div class="kpi warn">
+      <div class="kpi-label">Tarifa vigente</div>
+      <div class="kpi-value" id="kpiTariff">R$ 1,20<span class="kpi-unit">/kWh</span></div>
+      <div class="kpi-sub" id="kpiPeriod">Horário normal</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Receita da sessão</div>
+      <div class="kpi-value" id="kpiRevenue">R$ 0,00</div>
+      <div class="kpi-sub" id="kpiKwhTotal">0,0 kWh entregues</div>
+    </div>
+  </div>
+
+  <!-- CAPACITY BAR -->
+  <div class="capacity-section">
+    <div class="section-title">Capacidade da rede</div>
+    <div class="cap-bar-wrap">
+      <div class="cap-bar-bg">
+        <div class="cap-bar-fill" id="capBar" style="width:0%"></div>
+      </div>
+      <div class="cap-labels">
+        <span>0 kW</span>
+        <span id="capBarLabel">0 kW em uso</span>
+        <span id="capMax">120 kW</span>
+      </div>
+    </div>
+    <div class="cap-limit-line" id="limitLine" style="display:none">
+      ⚠ Limite de pico ativo: capacidade reduzida para 80 kW · distribuição proporcional em vigor
+    </div>
+  </div>
+
+  <!-- CONTENT GRID -->
+  <div class="content-grid">
+
+    <!-- CHARGERS -->
+    <div class="chargers-section">
+      <div class="section-title">Carregadores · OCPP</div>
+      <div class="chargers-grid" id="chargersGrid"></div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+
+      <!-- TARIFF PANEL -->
+      <div class="tariff-panel">
+        <div class="section-title">Tarifação dinâmica</div>
+        <div class="tariff-row">
+          <span class="tariff-period">Pico (08h–10h / 18h–20h)</span>
+          <span class="tariff-price tariff-peak">R$ 1,80</span>
+        </div>
+        <div class="tariff-row">
+          <span class="tariff-period">Normal</span>
+          <span class="tariff-price tariff-normal">R$ 1,20</span>
+        </div>
+        <div class="tariff-row">
+          <span class="tariff-period">Solar (10h–16h)</span>
+          <span class="tariff-price tariff-solar">R$ 0,90</span>
+        </div>
+        <div style="margin-top:12px; font-size:10px; color:var(--muted); line-height:1.6">
+          Escala: 1 ciclo (3s) = 1 hora simulada.<br>
+          Potência máx. por veículo: 22 kW (AC trifásico Modo 3).<br>
+          Capacidade pico reduzida: 120 → 80 kW.
+        </div>
+      </div>
+
+      <!-- AI PANEL -->
+      <div class="ai-panel">
+        <div class="ai-header">
+          <div class="ai-dot"></div>
+          <div class="ai-title">IA · Recomendações em tempo real</div>
+        </div>
+        <div class="ai-messages" id="aiMessages">
+          <div class="ai-msg">Aguardando dados da rede...</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<footer>
+  ChargeGrid Intelligence – Prova de Conceito · Sprint 2 GoodWe Challenge · FIAP 2026.1<br>
+  David Gabriel · Enzo Christino · Filipe Gunther · Guilherme Guimarães · João Lucas · Lucas Pinheiro
+</footer>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────────────────
+const MAX_CAPACITY = 120;
+const PEAK_CAPACITY = 80;
+const MAX_POWER = 22;
+const CYCLE_MS = 3000; // 3s = 1h simulada
+
+const TARIFFS = [
+  { label: 'Horário de pico', value: 1.80, cls: 'tariff-peak', hours: h => (h>=8&&h<10)||(h>=18&&h<20) },
+  { label: 'Energia solar',   value: 0.90, cls: 'tariff-solar', hours: h => h>=10&&h<16 },
+  { label: 'Horário normal',  value: 1.20, cls: 'tariff-normal', hours: () => true },
+];
+
+const AI_MSGS = {
+  peak_on:    { text: 'Pico de demanda detectado. Capacidade reduzida para 80 kW. Redistribuindo carga entre os carregadores ativos.', cls: 'warn' },
+  peak_off:   { text: 'Período de pico encerrado. Capacidade restaurada para 120 kW. Veículos retomando potência máxima.', cls: '' },
+  solar_on:   { text: 'Geração solar ativa. Tarifa reduzida para R$ 0,90/kWh. Ótimo momento para iniciar sessões de recarga.', cls: '' },
+  solar_off:  { text: 'Geração solar encerrada. Sistema retornando ao modo de tarifação padrão.', cls: '' },
+  high_load:  { text: 'Utilização acima de 80%. Potência redistribuída proporcionalmente para manter estabilidade da rede.', cls: 'warn' },
+  low_load:   { text: 'Baixa demanda identificada. Todos os carregadores operando em potência máxima (22 kW).', cls: '' },
+  idle:       { text: 'Sistema em modo de espera. Capacidade total disponível. Aguardando conexão de veículos.', cls: '' },
+};
+
+// ── STATE ────────────────────────────────────────────────────────────────────
+let hour = 0;
+let totalKwh = 0;
+let totalRevenue = 0;
+let lastTariffLabel = '';
+let lastPeakState = false;
+let lastSolarState = false;
+
+// Chargers: some start active, some idle; pattern changes with hour
+const CHARGER_IDS = ['C-01','C-02','C-03','C-04','C-05','C-06'];
+
+function activeCount(h) {
+  // simulate realistic connection pattern through the day
+  if (h < 7)  return 0;
+  if (h < 9)  return 3;
+  if (h < 10) return 5;
+  if (h < 12) return 6;
+  if (h < 13) return 4;
+  if (h < 14) return 5;
+  if (h < 16) return 6;
+  if (h < 18) return 4;
+  if (h < 20) return 5;
+  if (h < 22) return 3;
+  return 1;
+}
+
+// ── DOM HELPERS ──────────────────────────────────────────────────────────────
+function getTariff(h) {
+  return TARIFFS.find(t => t.hours(h)) || TARIFFS[2];
+}
+
+function getCapacity(h) {
+  const isPeak = (h>=8&&h<10)||(h>=18&&h<20);
+  return isPeak ? PEAK_CAPACITY : MAX_CAPACITY;
+}
+
+function renderChargers(activeN, powers, tariff) {
+  const grid = document.getElementById('chargersGrid');
+  grid.innerHTML = '';
+  CHARGER_IDS.forEach((id, i) => {
+    const isActive = i < activeN;
+    const pw = isActive ? powers[i] : 0;
+    const pct = (pw / MAX_POWER) * 100;
+    const card = document.createElement('div');
+    card.className = 'charger-card ' + (isActive ? 'active' : 'idle');
+    card.innerHTML = `
+      <div class="charger-header">
+        <div class="charger-id">${id}</div>
+        <div class="charger-status ${isActive ? 'status-active' : 'status-idle'}">${isActive ? 'Em carga' : 'Livre'}</div>
+      </div>
+      <div class="ocpp-badge">OCPP 1.6</div>
+      ${isActive ? `
+        <div class="charger-power">${pw.toFixed(1)}<span style="font-size:13px;color:var(--muted)"> kW</span></div>
+        <div class="charger-kwh">+${(pw * (1/60)).toFixed(3)} kWh/min</div>
+        <div class="charger-mini-bar"><div class="charger-mini-fill" style="width:${pct}%"></div></div>
+        <div class="charger-tariff">Tarifa: <span class="tariff-val ${tariff.cls}">${tariff.label}</span></div>
+      ` : `
+        <div class="charger-power idle-power">— kW</div>
+        <div class="charger-kwh">Aguardando veículo</div>
+        <div class="charger-mini-bar"><div class="charger-mini-fill" style="width:0%"></div></div>
+        <div class="charger-tariff" style="color:var(--muted)">Sem sessão ativa</div>
+      `}
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function addAiMsg(msg) {
+  const box = document.getElementById('aiMessages');
+  const d = document.createElement('div');
+  d.className = 'ai-msg ' + (msg.cls || '');
+  d.innerHTML = msg.text + `<div class="ai-timestamp">${String(hour).padStart(2,'0')}:00</div>`;
+  box.prepend(d);
+  // keep max 4 messages
+  while (box.children.length > 4) box.removeChild(box.lastChild);
+}
+
+// ── MAIN TICK ────────────────────────────────────────────────────────────────
+function tick() {
+  const tariff = getTariff(hour);
+  const capacity = getCapacity(hour);
+  const isPeak = (hour>=8&&hour<10)||(hour>=18&&hour<20);
+  const isSolar = hour>=10&&hour<16;
+  const activeN = activeCount(hour);
+
+  // distribute power
+  let powers = new Array(6).fill(0);
+  if (activeN > 0) {
+    const perVehicle = Math.min(MAX_POWER, capacity / activeN);
+    for (let i = 0; i < activeN; i++) powers[i] = perVehicle;
+  }
+
+  const totalLoad = powers.reduce((a,b)=>a+b, 0);
+  const pct = (totalLoad / MAX_CAPACITY) * 100;
+
+  // revenue per cycle (1 cycle = 1h)
+  const cycleKwh = totalLoad * 1; // 1h
+  totalKwh += cycleKwh;
+  totalRevenue += cycleKwh * tariff.value;
+
+  // update KPIs
+  document.getElementById('simTime').textContent = `${String(hour).padStart(2,'0')}:00`;
+  document.getElementById('kpiLoad').innerHTML = `${totalLoad.toFixed(0)}<span class="kpi-unit">kW</span>`;
+  document.getElementById('kpiLoadSub').textContent = `de ${capacity} kW disponíveis`;
+  document.getElementById('kpiActive').innerHTML = `${activeN}<span class="kpi-unit">/ 6</span>`;
+  document.getElementById('kpiTariff').innerHTML = `R$ ${tariff.value.toFixed(2).replace('.',',')}<span class="kpi-unit">/kWh</span>`;
+  document.getElementById('kpiPeriod').textContent = tariff.label;
+  document.getElementById('kpiRevenue').textContent = `R$ ${totalRevenue.toFixed(2).replace('.',',')}`;
+  document.getElementById('kpiKwhTotal').textContent = `${totalKwh.toFixed(1)} kWh entregues`;
+
+  // capacity bar
+  const barEl = document.getElementById('capBar');
+  barEl.style.width = pct + '%';
+  barEl.style.background = pct > 90 ? 'var(--danger)' : pct > 66 ? 'var(--warn)' : 'linear-gradient(90deg, var(--accent), var(--accent2))';
+  document.getElementById('capBarLabel').textContent = `${totalLoad.toFixed(0)} kW em uso`;
+  document.getElementById('capMax').textContent = `${capacity} kW`;
+  document.getElementById('limitLine').style.display = isPeak ? 'flex' : 'none';
+
+  // chargers
+  renderChargers(activeN, powers, tariff);
+
+  // AI messages
+  if (isPeak !== lastPeakState) {
+    addAiMsg(isPeak ? AI_MSGS.peak_on : AI_MSGS.peak_off);
+    lastPeakState = isPeak;
+  }
+  if (isSolar !== lastSolarState) {
+    addAiMsg(isSolar ? AI_MSGS.solar_on : AI_MSGS.solar_off);
+    lastSolarState = isSolar;
+  }
+  if (tariff.label !== lastTariffLabel) {
+    lastTariffLabel = tariff.label;
+  }
+  if (activeN === 0 && hour > 0) addAiMsg(AI_MSGS.idle);
+  else if (pct > 80) addAiMsg(AI_MSGS.high_load);
+  else if (hour % 4 === 0 && activeN > 0) addAiMsg(AI_MSGS.low_load);
+
+  hour = (hour + 1) % 24;
+}
+
+tick();
+setInterval(tick, CYCLE_MS);
+</script>
+</body>
+</html>
